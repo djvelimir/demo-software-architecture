@@ -1,0 +1,43 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+AddElementTag("dashedLine")
+
+AddRelTag("dashedLine", $lineStyle = DashedLine())
+
+SHOW_PERSON_OUTLINE()
+Person(person, "Personal Banking Customer", "A customer of the bank, with personal bank accounts.")
+System_Ext(mainframeBankingSystem, "Mainframe Banking System", "Stores all the core baning information about customers, accounts, transactions, etc.")
+System_Ext(emailSystem, "Email System", "The internal microsoft exchange e-mail system")
+
+Boundary(internetBankingSystem, "Internet Banking System", "Software System") {
+    Container(webApp, "Web Application", "Container: Java and Spring MVC", "Delivers the static content and the internet banking single page application.")
+    Container(spaApp, "Single-Page application", "Container: JavaScript and Angular", "Provides all the internet banking functionality to customers via their web browsers.")
+    Container(mobileApp, "Mobile Application", "Container: Xamarin", "Provides a limited subset of the internet banking functionality to customers via their mobile devices.")
+    Container(apiApp, "API Application", "Container: Java and Spring MVC", "Provides internet banking functionality via a JSON/HTTPS API.")
+    ContainerDb(db, "Database", "Container: Relational Database Schema", "Stores user registration information, hashed authentication credentials, access logs, etc.")
+
+    Rel_Right(webApp, spaApp, "Delivers to the customer's web browser", $tags="dashedLine")
+    Lay_Right(spaApp, mobileApp)
+    Rel_Down(spaApp, apiApp, "Makes API calls to", "JSON/HTTPS", $tags="dashedLine")
+    Rel_Down(mobileApp, apiApp, "Makes API calls to", "JSON/HTTPS", $tags="dashedLine")
+    Rel_Left(apiApp, db, "Read from and writes to", "DBC", $tags="dashedLine")
+
+    Rel_Right(apiApp, emailSystem, "Makes API calls to", "JSON/HTTPS", $tags="dashedLine")
+    Rel_Right(apiApp, mainframeBankingSystem, "Makes API calls to", "JSON/HTTPS", $tags="dashedLine")
+
+}
+
+Rel_Down(person, webApp, "Visits bigbank.com/ib using","HTTPS", $tags="dashedLine")
+Rel_Down(person, spaApp, "Views account balances, and makes payments using", $tags="dashedLine")
+Rel_Down(person, mobileApp, "Views account balances, and makes payments using", $tags="dashedLine")
+Rel_Up(emailSystem, person, "Sends e-mails to", $tags="dashedLine")
+
+'Lay_Right(internetBankingSystem, emailSystem)
+Lay_Down(emailSystem, mainframeBankingSystem)
+
+
+'Container diagram for Internet Banking System
+'The container diagram for the internet banking system
+'Workspace last modified: []
+@enduml
